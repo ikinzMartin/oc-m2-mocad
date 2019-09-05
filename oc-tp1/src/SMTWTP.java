@@ -25,10 +25,12 @@ public class SMTWTP {
                 List<Integer> instancePart = new ArrayList<Integer>();
                 for (int y=0; y<lines; y++){
                     String line = sc.nextLine();
-                    String[] parsedLine = line.split(" ");
+                    String[] parsedLine = line.trim().replaceAll(" +", " ").split(" ");
                     for(int i=0; i<parsedLine.length; i++){
                         System.out.println(parsedLine[i]);
-                        instancePart.add(Integer.parseInt(parsedLine[i]));
+                        if (parsedLine[i] != ""){
+                            instancePart.add(Integer.parseInt(parsedLine[i]));
+                        }
                     }
                 }
                 res.add(instancePart);
