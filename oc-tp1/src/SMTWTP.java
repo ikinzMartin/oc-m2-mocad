@@ -35,6 +35,7 @@ public class SMTWTP {
         List<List<Integer>> processedInstance = new LinkedList<>();
         for (int i=0; i<instanceSize; i++){
             List<Integer> triplet = new LinkedList<>();
+            triplet.add(i);
             triplet.add(rawInstance.get(0).get(i));
             triplet.add(rawInstance.get(1).get(i));
             triplet.add(rawInstance.get(2).get(i));
@@ -52,12 +53,11 @@ public class SMTWTP {
         return l;
     }
 
-    /*public static List<List<Integer>> sortInstancePerDueDate(List<List<Integer>> instance){
+    public static List<List<Integer>> sortInstancePerDueDate(List<List<Integer>> instance){
         List<List<Integer>> res = new LinkedList<>();
         List<Integer> dueDates = instance.get(2);
-        dueDates.stream().
         return res;
-    }*/
+    }
 
     public static void main(String[] args) throws FileNotFoundException {
         List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
