@@ -8,17 +8,17 @@ import java.util.Scanner;
 
 public class SMTWTP {
 
-    public static List<List<Integer>> parseFile(String path, int instanceSize, int lines) throws FileNotFoundException {
+    /*public static List<List<Integer>> parseFile(String path, int instanceSize, int lines) throws FileNotFoundException {
         File file = new File(path);
         Scanner sc = new Scanner(file);
-        /*while (sc.hasNextLine()){
+        while (sc.hasNextLine()){
             String line = sc.nextLine();
             parsedLine = Arrays
                     .stream(line.split(" "))
                     .map(Integer::parseInt)
                     .toArray(Integer[] :: new);
             break;
-        }*/
+        }
         List<List<Integer>> res = new ArrayList<>();
         while (sc.hasNextLine()){
             for (int x=0; x<3; x++){
@@ -35,6 +35,24 @@ public class SMTWTP {
                 }
                 res.add(instancePart);
             }
+        }
+        return res;
+    }*/
+
+    public static List<List<List<Integer>>> parseFile(String path, int instanceSize, int lines) throws FileNotFoundException {
+        File file = new File(path);
+        Scanner sc = new Scanner(file);
+        List<List<List<Integer>>> res = new ArrayList<>();
+        while (sc.hasNext()){
+            List<List<Integer>> instance = new ArrayList<>();
+            for (int i=0; i<3; i++){
+                List<Integer> inf = new ArrayList<>();
+                for (int j=0; j<instanceSize; j++){
+                    inf.add(sc.nextInt());
+                }
+                instance.add(inf);
+            }
+            res.add(instance);
         }
         return res;
     }
