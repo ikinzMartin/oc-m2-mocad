@@ -63,7 +63,7 @@ public class SMTWTP {
         return res;
     }
 
-    public static List<Integer> sortInstancePerDueDate(List<List<Integer>> instance) {
+    public static List<Integer> sortInstanceByDueDate(List<List<Integer>> instance) {
         Collections.sort(instance, new Comparator<List<Integer>>() {
             @Override
             public int compare(List<Integer> o1, List<Integer> o2) {
@@ -73,10 +73,43 @@ public class SMTWTP {
         return instance.stream().map(job -> job.get(0)).collect(Collectors.toCollection(LinkedList::new));
     }
 
+    public static int mdd(int C, int p, int d) {
+        return Integer.max(C+p,d);
+    }
+
+    public static List<Integer> constructSolutionByModifiedDueDate(List<List<Integer>> instance) {
+        List<Integer> solution = new LinkedList<Integer>();
+        List<List<Integer>> unsortedElements = new LinkedList<>();
+        for (List<Integer> lst: instance) {
+            unsortedElements.add(new ArrayList<Integer>(lst));
+        }
+        int bestMDDScore = -1, MDDScore;
+        List<Integer> bestTask = null;
+        int ellapsedTime = 0;
+        while (!unsortedElements.isEmpty()) {
+            bestTask = unsortedElements.get(0);
+            bestMDDScore = SMTWTP.mdd(ellapsedTime, unsortedElements.get(0).get(1), unsortedElements.get(0).get(3));
+            for (List<Integer> task: unsortedElements) {
+                MDDScore = SMTWTP.mdd(ellapsedTime, task.get(1), task.get(3));
+                if (MDDScore < bestMDDScore) {
+                    bestTask = task;
+                    bestMDDScore = MDDScore;
+                }
+            }
+            solution.add(bestTask.get(0));
+            unsortedElements.remove(bestTask);
+            ellapsedTime += bestTask.get(1);
+        }
+        return solution;
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
         List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
-        List<List<Integer>> formattedInstance = SMTWTP.formatInstance(res.get(1), 100);
-        System.out.println(SMTWTP.score(SMTWTP.sortInstancePerDueDate(formattedInstance),res.get(1)));
+        List<List<Integer>> formattedInstance;
+        for (List<List<Integer>> instance: res) {
+            formattedInstance = SMTWTP.formatInstance(instance, 100);
+            System.out.println(SMTWTP.score(SMTWTP.constructSolutionByModifiedDueDate(formattedInstance),instance));
+        }
     }
 
 }
