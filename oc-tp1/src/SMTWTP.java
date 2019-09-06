@@ -1,45 +1,19 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.IntStream;
 
 public class SMTWTP {
 
-    /*public static List<List<Integer>> parseFile(String path, int instanceSize, int lines) throws FileNotFoundException {
-        File file = new File(path);
-        Scanner sc = new Scanner(file);
-        while (sc.hasNextLine()){
-            String line = sc.nextLine();
-            parsedLine = Arrays
-                    .stream(line.split(" "))
-                    .map(Integer::parseInt)
-                    .toArray(Integer[] :: new);
-            break;
-        }
-        List<List<Integer>> res = new ArrayList<>();
-        while (sc.hasNextLine()){
-            for (int x=0; x<3; x++){
-                List<Integer> instancePart = new ArrayList<Integer>();
-                for (int y=0; y<lines; y++){
-                    String line = sc.nextLine();
-                    String[] parsedLine = line.trim().replaceAll(" +", " ").split(" ");
-                    for(int i=0; i<parsedLine.length; i++){
-                        System.out.println(parsedLine[i]);
-                        if (parsedLine[i] != ""){
-                            instancePart.add(Integer.parseInt(parsedLine[i]));
-                        }
-                    }
-                }
-                res.add(instancePart);
-            }
-        }
-        return res;
-    }*/
-
-    public static List<List<List<Integer>>> parseFile(String path, int instanceSize, int lines) throws FileNotFoundException {
+    /**
+     * Builds a list containing the set of instances of the provided file
+     * @param path of the instance file
+     * @param instanceSize size of an instance
+     * @return the list of instance which is a list of three lists
+     * @throws FileNotFoundException
+     */
+    public static List<List<List<Integer>>> parseFile(String path, int instanceSize) throws FileNotFoundException {
         File file = new File(path);
         Scanner sc = new Scanner(file);
         List<List<List<Integer>>> res = new ArrayList<>();
@@ -57,12 +31,42 @@ public class SMTWTP {
         return res;
     }
 
-    public static void main(String[] args) {
-        try {
-            SMTWTP.parseFile("wt100.txt", 100, 5);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    public static List<List<Integer>> formatInstance(List<List<Integer>> rawInstance, int instanceSize){
+        List<List<Integer>> processedInstance = new LinkedList<>();
+        for (int i=0; i<instanceSize; i++){
+            List<Integer> triplet = new LinkedList<>();
+            triplet.add(rawInstance.get(0).get(i));
+            triplet.add(rawInstance.get(1).get(i));
+            triplet.add(rawInstance.get(2).get(i));
+            processedInstance.add(triplet);
         }
+        return processedInstance;
+    }
+
+    public static List<Integer> randomSolution(int range){
+        List<Integer> l = new LinkedList<>();
+        for (int i=0; i<range; i++){
+            l.add(i);
+        }
+        Collections.shuffle(l);
+        return l;
+    }
+
+    /*public static List<List<Integer>> sortInstancePerDueDate(List<List<Integer>> instance){
+        List<List<Integer>> res = new LinkedList<>();
+        List<Integer> dueDates = instance.get(2);
+        dueDates.stream().
+        return res;
+    }*/
+
+    public static void main(String[] args) throws FileNotFoundException {
+        List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
+        System.out.println(res.size());
+        System.out.println(res.get(1).size());
+        System.out.println(res.get(1).get(1).size());
+
+        System.out.println(SMTWTP.randomSolution(100).size());
+        System.out.println(SMTWTP.formatInstance(res.get(1), 100));
     }
 
 }
