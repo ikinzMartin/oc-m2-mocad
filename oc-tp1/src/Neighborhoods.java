@@ -7,19 +7,6 @@ import java.util.stream.Stream;
 
 public class Neighborhoods {
 
-    /*private val permu = (cities: Seq[Int]) => {
-        var res = new ListBuffer[Seq[Int]]
-        for (i <- cities.indices){
-            for (j <- i until cities.length){
-                if (i!=j){
-                    var l = copy_list(cities)
-                    var r = l.updated(i,l(j)).updated(j,l(i))
-                    res += r
-                }
-            }
-        }
-        res
-    }*/
 
     public static List<List<Integer>> permutation(List<Integer> solution){
         List<List<Integer>> neighbors = new ArrayList<>();
@@ -27,7 +14,7 @@ public class Neighborhoods {
             for (int j=i; j<solution.size(); j++){
                 if (i!=j){
                     List<Integer> copy_sol = new ArrayList<>(solution);
-                    Collections.swap(copy_sol, copy_sol.get(i), copy_sol.get(j));
+                    Collections.swap(copy_sol, i, j);
                     neighbors.add(copy_sol);
                 }
             }
@@ -35,20 +22,6 @@ public class Neighborhoods {
         return neighbors;
     }
 
-    /*private val insertion = (cities: Seq[Int]) => {
-        var res = new ListBuffer[Seq[Int]]
-        for (i <- 0 until cities.length - 1){
-            for (j <- i+1 until cities.length){
-                if (i!=j){
-                    var tmp = copy_list(cities)
-                    var n = tmp.take(i) ++ Seq(tmp(j)) ++ tmp.slice(i,j) ++ tmp.slice(j+1, tmp.length)
-                    //print(tmp.length + " "+ n.length + "\n")
-                    res += n
-                }
-            }
-        }
-        res
-    }*/
 
     public static List<List<Integer>> insertion(List<Integer> solution){
         List<List<Integer>> neighbors = new ArrayList<>();
@@ -72,26 +45,39 @@ public class Neighborhoods {
     }
 
 
-    /*private val inversion = (cities: Seq[Int]) => {
-        var res = new ListBuffer[Seq[Int]]
-        for (i <- 0 until cities.length - 1) {
-            for (j <- i + 1 until cities.length) {
-                var tmp = copy_list(cities)
-                var rev = cities.slice(i,j).reverse
-                res += tmp.take(i) ++ rev ++ tmp.slice(j, tmp.length)
-            }
-        }
-        res
-    }*/
-
     public static List<List<Integer>> inversion(List<Integer> solution){
         List<List<Integer>> neighbors = new ArrayList<>();
-        for (int i=0; i<solution.size(); i++){
-            for (int j=i+1; j<solution.size(); j++){
+        for (int i=0; i<solution.size()-1; i++){
+            for (int j=i+2; j<=solution.size(); j++){
                 List<Integer> copy_sol = new ArrayList<>(solution);
+                Collections.reverse(copy_sol.subList(i,j));
+                List<Integer> n = Stream.concat(
+                        copy_sol.subList(0, i).stream(),
+                        Stream.concat(
+                                copy_sol.subList(i,j).stream(),
+                                copy_sol.subList(j,copy_sol.size()).stream()))
+                        .collect(Collectors.toList());
+                neighbors.add(n);
             }
         }
         return neighbors;
+    }
+
+
+    public static void main(String[] args) {
+        List<Integer> test = new ArrayList<>();
+        test.add(1);
+        test.add(2);
+        test.add(3);
+        test.add(4);
+        test.add(5);
+        test.add(6);
+        test.add(7);
+        test.add(8);
+        test.add(9);
+
+        List<List<Integer>> testPermutation = inversion(test);
+        System.out.println(testPermutation.size());
     }
 
 }
