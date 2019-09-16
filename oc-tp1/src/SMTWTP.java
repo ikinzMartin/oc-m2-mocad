@@ -1,5 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +31,16 @@ public class SMTWTP {
         return res;
     }
 
+    public static List<Integer> parseSolution(String path) throws FileNotFoundException {
+        File file = new File(path);
+        Scanner sc = new Scanner(file);
+        List<Integer> result = new ArrayList<>();
+        while (sc.hasNext()) {
+            result.add(sc.nextInt());
+        }
+        return result;
+    }
+
     public static List<List<Integer>> formatInstance(List<List<Integer>> rawInstance, int instanceSize){
         List<List<Integer>> processedInstance = new LinkedList<>();
         for (int i=0; i<instanceSize; i++){
@@ -57,8 +66,8 @@ public class SMTWTP {
     public static Integer score(List<Integer> solution, List<List<Integer>> instance) {
         int time = 0, res = 0;
         for (Integer job : solution) {
-            time += instance.get(0).get(job);
-            res += Integer.max(time - instance.get(2).get(job), 0) * instance.get(1).get(job);
+            time += instance.get(job).get(1);
+            res += Integer.max(time - instance.get(job).get(3), 0) * instance.get(job).get(2);
         }
         return res;
     }
@@ -103,13 +112,63 @@ public class SMTWTP {
         return solution;
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
-        List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
-        List<List<Integer>> formattedInstance;
-        for (List<List<Integer>> instance: res) {
-            formattedInstance = SMTWTP.formatInstance(instance, 100);
-            System.out.println(SMTWTP.score(SMTWTP.constructSolutionByModifiedDueDate(formattedInstance),instance));
+    public static List<Integer> localSearch(List<List<Integer>> instance, Boolean firstImprovement, Heuristic initialSolution, Neighborhood neighboor) {
+        List<Integer> finalSolution;
+        if (initialSolution.equals(Heuristic.MDD)) {
+            finalSolution = constructSolutionByModifiedDueDate(instance);
+        } else if (initialSolution.equals(Heuristic.EDD)) {
+            finalSolution = sortInstanceByDueDate(instance);
+        } else {
+            finalSolution = randomSolution(instance.size());
         }
+        boolean improved = true;
+        List<List<Integer>> N_s;
+        while (improved) { // stop condition
+            if (Neighborhood.insertion.equals(neighboor)) {
+                N_s = Neighborhoods.insertion(finalSolution);
+            } else if (Neighborhood.permutation.equals(neighboor)) {
+                N_s = Neighborhoods.permutation(finalSolution);
+            } else {
+                N_s = Neighborhoods.inversion(finalSolution);
+            }
+            improved = false;
+            for (List<Integer> solution : N_s) {
+                if (score(solution, instance) < score(finalSolution, instance)) {
+                    finalSolution = solution;
+                    improved = true;
+                    if (firstImprovement) {
+                        break;
+                    }
+                }
+            }
+        }
+        return finalSolution;
+    }
+
+    public static void main(String[] args) throws IOException {
+        List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
+        List<Integer> bestSolution = SMTWTP.parseSolution("wtbest100b.txt");
+        List<List<Integer>> formattedInstance;
+        long startTime, executionTime;
+        int score, instanceId = -1;
+        PrintWriter file = new PrintWriter(new FileWriter("res.csv"));
+        file.println("instanceId,initialHeuristic,neighborhood,firstImprovementFlag,optimalScoreDeviation,executionTime");
+        for (List<List<Integer>> instance: res) {
+            instanceId += 1;
+            formattedInstance = SMTWTP.formatInstance(instance, 100);
+            for (Heuristic heuristic: Heuristic.values()) {
+                for (Neighborhood neighborhood: Neighborhood.values()) {
+                    for (boolean firstImprovement: new boolean[] {true, false}) {
+                        //System.out.println("Running..."+heuristic+","+neighborhood+","+firstImprovement);
+                        startTime = System.currentTimeMillis();
+                        score = SMTWTP.score(SMTWTP.localSearch(formattedInstance, firstImprovement, heuristic, neighborhood), formattedInstance);
+                        executionTime = System.currentTimeMillis() - startTime;
+                        file.println(instanceId+","+heuristic+","+neighborhood+","+firstImprovement+","+(score-bestSolution.get(instanceId))+","+executionTime);
+                    }
+                }
+            }
+        }
+        file.close();
     }
 
 }
