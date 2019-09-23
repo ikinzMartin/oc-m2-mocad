@@ -153,15 +153,16 @@ public class SMTWTP {
         int best_score_neighbors = Integer.MAX_VALUE; //represents infinite score
         boolean end = false;
 
-        int current_score = best_score;
+        int current_score;
+        int index_vnd;
+        boolean end_vnd;
 
         while (!end) {
-            System.out.println("looping...");
-            boolean end_vnd = false;
-            int index_vnd = 0;
+            end_vnd = false;
+            index_vnd = 0;
 
             while (!end_vnd) {
-                List<List<Integer>> neighbors = Neighborhoods.voisinage(solution, order);
+                List<List<Integer>> neighbors = Neighborhoods.voisinage(best_solution, order.charAt(index_vnd));
                 for (int i = 0; i < neighbors.size(); i++) {
                     current_score = score(neighbors.get(i), instance);
                     if (current_score < best_score_neighbors) {
@@ -169,20 +170,15 @@ public class SMTWTP {
                         best_score_neighbors = current_score;
                     }
                 }
-
-                if (best_score_neighbors < best_score) {
+                if ((best_score_neighbors < best_score) || end) { // !!!! vérifier le || end parce que je suis pas ultra sure
                     best_solution = neighbors.get(index_best_solution);
                     best_score = best_score_neighbors;
                     end_vnd = true;
-                    System.out.println("IMPROVED !!!");
                 } else {
-                    if (index_vnd == neighbors.size() - 1) {
+                    if (index_vnd == order.length()-1) {
                         end = true;
-                        System.out.println("ending");
                     } else {
                         index_vnd++;
-                        if (index_vnd%100==0)
-                            System.out.println(index_vnd);
                     }
                 }
             }
@@ -256,10 +252,14 @@ public class SMTWTP {
         List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
         List<Integer> bestSolution = SMTWTP.parseSolution("wtbest100b.txt");
 
-        List<List<Integer>> inst = formatInstance(res.get(0),100);
+        for (int k=0; k<res.size(); k++){
+            List<List<Integer>> inst = formatInstance(res.get(k),100);
+            List<Integer> soltest = iterativeLocalSearch(randomSolution(100), inst, "esi");
+            System.out.print(score(soltest, inst));
+            System.out.print(" ");
+            System.out.println(bestSolution.get(k));
 
-        List<Integer> soltest = iterativeLocalSearch(randomSolution(100), inst, "es");
-        System.out.println(score(soltest, inst));
+        }
     }
 
 }
