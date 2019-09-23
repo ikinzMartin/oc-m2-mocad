@@ -145,8 +145,92 @@ public class SMTWTP {
         return finalSolution;
     }
 
+    public static List<Integer> vnd(List<Integer> solution, List<List<Integer>> instance, String order) {
+
+        int best_score = score(solution, instance);
+        List<Integer> best_solution = new ArrayList<>(solution);
+        int index_best_solution = -1; //initialize to an invalid index
+        int best_score_neighbors = Integer.MAX_VALUE; //represents infinite score
+        boolean end = false;
+
+        int current_score = best_score;
+
+        while (!end) {
+            System.out.println("looping...");
+            boolean end_vnd = false;
+            int index_vnd = 0;
+
+            while (!end_vnd) {
+                List<List<Integer>> neighbors = Neighborhoods.voisinage(solution, order);
+                for (int i = 0; i < neighbors.size(); i++) {
+                    current_score = score(neighbors.get(i), instance);
+                    if (current_score < best_score_neighbors) {
+                        index_best_solution = i;
+                        best_score_neighbors = current_score;
+                    }
+                }
+
+                if (best_score_neighbors < best_score) {
+                    best_solution = neighbors.get(index_best_solution);
+                    best_score = best_score_neighbors;
+                    end_vnd = true;
+                    System.out.println("IMPROVED !!!");
+                } else {
+                    if (index_vnd == neighbors.size() - 1) {
+                        end = true;
+                        System.out.println("ending");
+                    } else {
+                        index_vnd++;
+                        if (index_vnd%100==0)
+                            System.out.println(index_vnd);
+                    }
+                }
+            }
+        }
+        return best_solution;
+    }
+
+
+    public static List<Integer> perturbation(List<Integer> solution, int p){
+        List<Integer> solution_c = new ArrayList<>(solution);
+        int a,b = -1;
+        Random r = new Random();
+        for (int i = 0; i<p; i++){
+            a = r.nextInt(solution_c.size()-1);
+            b = r.nextInt(solution_c.size()-1);
+            Collections.swap(solution_c, a, b);
+        }
+        return solution_c;
+    }
+
+    public static List<Integer> iterativeLocalSearch(List<Integer> solution, List<List<Integer>> instance, String order){
+        List<Integer> best_solution = vnd(solution, instance, order);
+        int best_score = score(solution, instance);
+        int p = 2;
+        int end = 2;
+        List<Integer> perturbated_solution = new ArrayList<>();
+        List<Integer> hc_vnd = new ArrayList<>();
+        int best_perturbated_score = 0;
+        int i = 0;
+
+        while(i != end){
+            perturbated_solution = perturbation(solution, p);
+            hc_vnd = vnd(perturbated_solution, instance, order);
+            best_perturbated_score = score(hc_vnd, instance);
+
+            if (best_perturbated_score < best_score){
+                best_score = best_perturbated_score;
+                best_solution = hc_vnd;
+                i=0;
+            } else {
+                i++;
+            }
+        }
+        return best_solution;
+    }
+
     public static void main(String[] args) throws IOException {
-        List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
+        /*List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
         List<Integer> bestSolution = SMTWTP.parseSolution("wtbest100b.txt");
         List<List<Integer>> formattedInstance;
         long startTime, executionTime;
@@ -168,7 +252,14 @@ public class SMTWTP {
                 }
             }
         }
-        file.close();
+        file.close();*/
+        List<List<List<Integer>>> res = SMTWTP.parseFile("wt100.txt", 100);
+        List<Integer> bestSolution = SMTWTP.parseSolution("wtbest100b.txt");
+
+        List<List<Integer>> inst = formatInstance(res.get(0),100);
+
+        List<Integer> soltest = iterativeLocalSearch(randomSolution(100), inst, "es");
+        System.out.println(score(soltest, inst));
     }
 
 }
