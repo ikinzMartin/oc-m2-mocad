@@ -199,11 +199,14 @@ public class SMTWTP {
         return solution_c;
     }
 
-    public static List<Integer> iterativeLocalSearch(List<Integer> solution, List<List<Integer>> instance, String order){
+    public static List<Integer> iterativeLocalSearch(List<Integer> solution,
+                                                     List<List<Integer>> instance,
+                                                     String order,
+                                                     int power,
+                                                     int end){
         List<Integer> best_solution = vnd(solution, instance, order);
         int best_score = score(solution, instance);
-        int p = 2;
-        int end = 2;
+        int p = power;
         List<Integer> perturbated_solution = new ArrayList<>();
         List<Integer> hc_vnd = new ArrayList<>();
         int best_perturbated_score = 0;
@@ -220,6 +223,9 @@ public class SMTWTP {
                 i=0;
             } else {
                 i++;
+                if (i%2 == 0){
+                    p = p+2; // petite phase d'exploration à tester / modifier
+                }
             }
         }
         return best_solution;
@@ -254,7 +260,7 @@ public class SMTWTP {
 
         for (int k=0; k<res.size(); k++){
             List<List<Integer>> inst = formatInstance(res.get(k),100);
-            List<Integer> soltest = iterativeLocalSearch(randomSolution(100), inst, "esi");
+            List<Integer> soltest = iterativeLocalSearch(randomSolution(100), inst, "esi", 2, 5);
             System.out.print(score(soltest, inst));
             System.out.print(" ");
             System.out.println(bestSolution.get(k));
