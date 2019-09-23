@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,6 +60,25 @@ public class Neighborhoods {
         return neighbors;
     }
 
+    public static List<List<Integer>> voisinage(List<Integer> solution, String order){
+        List<List<Integer>> result = new ArrayList<>();
+        for(String letter : Arrays.asList(order.split(""))){
+            switch (letter){
+                case "e":
+                    result.addAll(permutation(solution));
+                    break;
+                case "s":
+                    result.addAll(inversion(solution));
+                    break;
+                case "i":
+                    result.addAll(insertion(solution));
+                    break;
+                default:
+            }
+        }
+        return result;
+    }
+
 
     public static void main(String[] args) {
         List<Integer> test = new ArrayList<>();
@@ -76,7 +92,7 @@ public class Neighborhoods {
         test.add(8);
         test.add(9);
 
-        List<List<Integer>> testPermutation = inversion(test);
+        List<List<Integer>> testPermutation = voisinage(test, "es");
         System.out.println(testPermutation.size());
     }
 
